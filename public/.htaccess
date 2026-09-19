@@ -1,0 +1,14 @@
+# SPA fallback — send all routes to index.html (Apache / Hostinger / cPanel)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Optional: if mod_rewrite is unavailable, use ErrorDocument (less ideal for SPAs)
+<IfModule !mod_rewrite.c>
+  ErrorDocument 404 /index.html
+</IfModule>

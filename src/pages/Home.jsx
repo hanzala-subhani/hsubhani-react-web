@@ -1,0 +1,565 @@
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import BlogCardVisual from '../components/BlogCardVisual'
+import {
+  AGENCY_EXPERTISE,
+  CAREER_HIGHLIGHTS,
+  CTA_PRIMARY,
+  CTA_SECONDARY,
+  SITE_BRAND_AGENCY,
+  SITE_BRAND_FULL,
+  SITE_FOUNDER_BIO,
+  SITE_POSITIONING,
+  STATS_FOOTNOTE,
+} from '../config/app.config'
+import {
+  aiCapabilities,
+  caseStudies,
+  homeArchitectureLayers,
+  homeTrustedStack,
+  homeWhatWeBuild,
+  homeWhyHSubhani,
+  industries,
+  processSteps,
+  services,
+  solutions,
+  technologies,
+} from '../data/agency'
+import { getBlogList } from '../lib/blogApi'
+import { mapBlogRowFromApi } from '../lib/blogMappers'
+import useScrollReveal from '../lib/useScrollReveal'
+
+const HOME_BLOG_COUNT = 3
+const HOME_TECH_COUNT = 6
+const HOME_AI_CAP_COUNT = 6
+
+/** Hero reassurance points — short, checkable claims only. */
+const HERO_ASSURANCES = [
+  { icon: 'fa-solid fa-user-gear', label: 'Senior-led delivery' },
+  { icon: 'fa-solid fa-code-branch', label: 'Production-grade architecture' },
+  { icon: 'fa-solid fa-life-ring', label: 'Support beyond launch' },
+]
+
+/** Canonical summaries keyed by slug — build cards link into services or solutions. */
+const summaryBySlug = new Map(
+  [...services, ...solutions].map(entry => [entry.slug, entry.summary]),
+)
+
+function summaryForBuildItem(item) {
+  return summaryBySlug.get(item.to.split('/').pop()) || ''
+}
+
+function mapHomeBlogPosts(items) {
+  return items
+    .map(mapBlogRowFromApi)
+    .filter(p => p.slug)
+    .sort((a, b) => {
+      const ta = a.created_at ? new Date(a.created_at).getTime() : 0
+      const tb = b.created_at ? new Date(b.created_at).getTime() : 0
+      return tb - ta
+    })
+    .slice(0, HOME_BLOG_COUNT)
+}
+
+export default function Home() {
+  const [posts, setPosts] = useState([])
+  const [blogLoading, setBlogLoading] = useState(true)
+  const [blogError, setBlogError] = useState(null)
+  const pageRef = useRef(null)
+
+  useScrollReveal(pageRef, [blogLoading, posts.length])
+
+  useEffect(() => {
+    let cancelled = false
+    setBlogLoading(true)
+    setBlogError(null)
+
+    getBlogList({ per_page: HOME_BLOG_COUNT })
+      .then(({ items }) => {
+        if (!cancelled) setPosts(mapHomeBlogPosts(items))
+      })
+      .catch(e => {
+        if (!cancelled) {
+          setPosts([])
+          setBlogError(e.message || 'Failed to load posts')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setBlogLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return (
+    <div className="home-agency" ref={pageRef}>
+      {/* Hero ------------------------------------------------------------- */}
+      <section className="ent-hero ent-on-dark" aria-labelledby="home-hero-heading">
+        <div className="ent-hero-grid" aria-hidden="true" />
+        <div className="container ent-hero-inner">
+          <div data-reveal>
+            <p className="ent-hero-badge">
+              <span className="ent-pulse" aria-hidden="true" />
+              <span>{SITE_POSITIONING}</span>
+            </p>
+            <h1 id="home-hero-heading">
+              Build. <em>Modernize.</em> Scale.
+            </h1>
+            <p className="ent-hero-lead">
+              We design, build and scale production web applications, APIs, SaaS platforms and
+              AI-powered systems — engineered by a senior technical lead who stays on the project
+              after launch.
+            </p>
+            <div className="ent-hero-actions">
+              <Link to="/contact" className="btn btn-teal">
+                {CTA_PRIMARY}
+                <span className="btn-ico" aria-hidden="true">
+                  <i className="fa-solid fa-arrow-up-right" />
+                </span>
+              </Link>
+              <Link to="/work" className="btn btn-ghost ent-ghost-dark">
+                View Case Studies
+              </Link>
+            </div>
+            <ul className="ent-hero-note">
+              {HERO_ASSURANCES.map(item => (
+                <li key={item.label}>
+                  <i className={item.icon} aria-hidden="true" />
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ent-stack-panel" data-reveal>
+            <div className="ent-stack-panel-head">
+              <h2 className="ent-stack-panel-title">Delivery Architecture</h2>
+              <span className="ent-stack-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            </div>
+            <ul className="ent-stack-layers">
+              {homeArchitectureLayers.map(layer => (
+                <li className="ent-stack-layer" key={layer.tier}>
+                  <span className="ent-stack-icon" aria-hidden="true">
+                    <i className={layer.icon} />
+                  </span>
+                  <span className="ent-stack-body">
+                    <span className="ent-stack-tier">{layer.tier}</span>
+                    <span className="ent-stack-label">{layer.label}</span>
+                    <span className="ent-stack-detail">{layer.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Proof ------------------------------------------------------------ */}
+      <section className="ent-metrics ent-on-dark" aria-label="Delivery record">
+        <div className="container">
+          <div className="ent-metrics-grid">
+            {CAREER_HIGHLIGHTS.map(stat => (
+              <div className="ent-metric" key={stat.label} data-reveal>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="ent-metrics-note">{STATS_FOOTNOTE}</p>
+        </div>
+      </section>
+
+      {/* Technology credibility row --------------------------------------- */}
+      <section className="ent-trust" aria-labelledby="home-trust-heading">
+        <div className="container ent-trust-inner">
+          <h2 id="home-trust-heading" className="ent-trust-label">
+            Core delivery stack
+          </h2>
+          <ul className="ent-trust-row">
+            {homeTrustedStack.map(item => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Capabilities ----------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-build-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">Capabilities</p>
+              <h2 id="home-build-heading" className="ent-h2">
+                What we build
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Six delivery areas that cover most engagements — from a first production release to
+              modernizing a system that is already carrying the business.
+            </p>
+          </div>
+
+          <div className="ent-grid ent-grid--3">
+            {homeWhatWeBuild.map(item => (
+              <article className="ent-card" key={item.title} data-reveal>
+                <span className="ent-card-icon" aria-hidden="true">
+                  <i className={item.icon} />
+                </span>
+                <h3>{item.title}</h3>
+                <p>{summaryForBuildItem(item)}</p>
+                <div className="ent-card-foot">
+                  <Link to={item.to} className="ent-link">
+                    Explore {item.title}
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Differentiators -------------------------------------------------- */}
+      <section className="ent-section ent-section--sunk" aria-labelledby="home-why-heading">
+        <div className="container">
+          <div className="ent-head ent-head--center" data-reveal>
+            <p className="ent-eyebrow">Why us</p>
+            <h2 id="home-why-heading" className="ent-h2">
+              Why {SITE_BRAND_FULL}?
+            </h2>
+            <p className="ent-deck">
+              A founder-led engineering partner: the person who architects your system is the person
+              who builds and reviews it.
+            </p>
+          </div>
+
+          <div className="ent-grid ent-grid--3">
+            {homeWhyHSubhani.map(item => (
+              <article className="ent-why-card" key={item.title} data-reveal>
+                <div className="ent-why-head">
+                  <i className={item.icon} aria-hidden="true" />
+                  <h3>{item.title}</h3>
+                </div>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Case studies ----------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-work-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">Selected work</p>
+              <h2 id="home-work-heading" className="ent-h2">
+                Featured case studies
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Production systems in AI, commerce and operations — each one still running the
+              business it was built for.
+            </p>
+          </div>
+
+          <div className="ent-work-grid">
+            {caseStudies.map(study => (
+              <article className="ent-work-card" key={study.slug} data-reveal>
+                <p className="ent-work-kicker">{study.kicker}</p>
+                <h3>
+                  <Link to={`/work/${study.slug}`}>{study.title}</Link>
+                </h3>
+                <p>{study.summary}</p>
+                <ul className="ent-work-stack">
+                  {study.stack.map(tech => (
+                    <li key={tech}>{tech}</li>
+                  ))}
+                </ul>
+                <div className="ent-work-foot">
+                  <Link to={`/work/${study.slug}`} className="ent-link">
+                    Read the case study
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AI --------------------------------------------------------------- */}
+      <section className="ent-ai ent-on-dark" aria-labelledby="home-ai-heading">
+        <div className="container ent-ai-grid">
+          <div data-reveal>
+            <p className="ent-eyebrow ent-eyebrow--on-dark">AI &amp; automation</p>
+            <h2 id="home-ai-heading" className="ent-h2">
+              AI inside software that is already in production
+            </h2>
+            <p className="ent-deck">
+              AI is not sold here as a slogan. Models are wired into Laravel and Python services
+              around a real job to be done, with a human still in control of what gets committed.
+            </p>
+            <div className="ent-hero-actions">
+              <Link to="/services/ai-integration" className="btn btn-teal">
+                Explore AI Solutions
+                <span className="btn-ico" aria-hidden="true">
+                  <i className="fa-solid fa-arrow-up-right" />
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          <ul className="ent-ai-caps" data-reveal>
+            {aiCapabilities.slice(0, HOME_AI_CAP_COUNT).map(cap => (
+              <li className="ent-ai-cap" key={cap.title}>
+                <strong>{cap.title}</strong>
+                <span>{cap.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Process ---------------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-process-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">How we work</p>
+              <h2 id="home-process-heading" className="ent-h2">
+                A delivery process you can audit
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Six stages from discovery to scale, each with an output you can review before the next
+              one is funded.
+            </p>
+          </div>
+
+          <ol className="ent-process">
+            {processSteps.map(step => (
+              <li className="ent-step" key={step.n} data-reveal>
+                <span className="ent-step-n" aria-hidden="true">
+                  {step.n}
+                </span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </li>
+            ))}
+          </ol>
+
+          <p className="ent-card-foot">
+            <Link to="/process" className="ent-link">
+              See the full process
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Industries ------------------------------------------------------- */}
+      <section className="ent-section ent-section--sunk" aria-labelledby="home-industries-heading">
+        <div className="container">
+          <div className="ent-head ent-head--center" data-reveal>
+            <p className="ent-eyebrow">Industries</p>
+            <h2 id="home-industries-heading" className="ent-h2">
+              Sectors we deliver into
+            </h2>
+          </div>
+
+          <div className="ent-grid ent-grid--3">
+            {industries.map(item => (
+              <Link className="ent-industry" to={item.to} key={item.slug} data-reveal>
+                <i className={item.icon} aria-hidden="true" />
+                <span>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Technology ------------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-tech-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">Technology</p>
+              <h2 id="home-tech-heading" className="ent-h2">
+                The stack behind the work
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Chosen for what a system has to do in production, not for what is currently
+              fashionable.
+            </p>
+          </div>
+
+          <ul className="ent-tech" data-reveal>
+            {technologies.slice(0, HOME_TECH_COUNT).map(tech => (
+              <li key={tech.name}>
+                <strong>{tech.name}</strong>
+                <span>{tech.text}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="ent-card-foot">
+            <Link to="/technology" className="ent-link">
+              View the full technology stack
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Founder ---------------------------------------------------------- */}
+      <section className="ent-founder" aria-labelledby="home-about-heading">
+        <div className="container ent-founder-grid">
+          <div data-reveal>
+            <p className="ent-eyebrow">About {SITE_BRAND_AGENCY}</p>
+            <h2 id="home-about-heading" className="ent-h2">
+              Founder-led engineering, not an account layer
+            </h2>
+            <p className="ent-deck">{SITE_FOUNDER_BIO}</p>
+            <p className="ent-founder-quote">
+              Production software, APIs and AI integration — architected and shipped by a technical
+              lead, not a layer of account managers.
+            </p>
+            <div className="ent-hero-actions">
+              <Link to="/about" className="btn btn-ghost">
+                Meet the technical lead
+              </Link>
+              <Link to="/contact" className="btn btn-teal">
+                {CTA_SECONDARY}
+              </Link>
+            </div>
+          </div>
+
+          <ul className="ent-expertise" data-reveal>
+            {AGENCY_EXPERTISE.map(item => (
+              <li key={item.title}>
+                <i className={item.icon} aria-hidden="true" />
+                {item.title}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Insights --------------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-blog-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">Insights</p>
+              <h2 id="home-blog-heading" className="ent-h2">
+                Engineering notes
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Practical writing on Laravel, backend architecture, APIs and putting AI into systems
+              that already have users.
+            </p>
+          </div>
+
+          {blogLoading && <p className="api-state">Loading recent posts…</p>}
+          {!blogLoading && blogError && (
+            <p className="api-state api-state--error">{blogError}</p>
+          )}
+          {!blogLoading && !blogError && posts.length === 0 && (
+            <p className="api-state">No insights published yet.</p>
+          )}
+          {!blogLoading && posts.length > 0 && (
+            <div className="blog-grid blog-grid--3 home-blog-grid">
+              {posts.map(post => (
+                <article className="blog-card home-blog-card" key={post.slug} data-reveal>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="blog-card-visual-link"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  >
+                    <BlogCardVisual
+                      post={post}
+                      className="home-blog-visual"
+                      dateBadge={
+                        post.dateBadge ? (
+                          <div className="home-blog-date-badge" aria-hidden="true">
+                            <strong>{post.dateBadge.day}</strong>
+                            <span>{post.dateBadge.month}</span>
+                          </div>
+                        ) : null
+                      }
+                    />
+                  </Link>
+                  <div className="blog-card-body">
+                    <div className="blog-meta">
+                      <span className="blog-tag">{post.category}</span>
+                    </div>
+                    <h3>
+                      <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                    </h3>
+                    <p>{post.excerpt}</p>
+                    <div className="blog-card-footer">
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        className="blog-link"
+                        aria-label={`Read ${post.title}`}
+                      >
+                        <i className="fa-solid fa-arrow-up-right" />
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+          <p className="ent-card-foot">
+            <Link to="/blog" className="ent-link">
+              View all insights
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Closing CTA ------------------------------------------------------ */}
+      <section className="ent-cta ent-on-dark" aria-labelledby="home-cta-heading">
+        <div className="container ent-cta-inner" data-reveal>
+          <p className="ent-eyebrow ent-eyebrow--on-dark" style={{ justifyContent: 'center' }}>
+            Start here
+          </p>
+          <h2 id="home-cta-heading" className="ent-h2">
+            Ready to build?
+          </h2>
+          <p className="ent-deck" style={{ marginInline: 'auto' }}>
+            Tell us what you are building, modernizing or scaling. You will talk to the engineer who
+            would lead the work.
+          </p>
+          <div className="ent-hero-actions">
+            <Link to="/contact" className="btn btn-teal">
+              {CTA_PRIMARY}
+              <span className="btn-ico" aria-hidden="true">
+                <i className="fa-solid fa-arrow-up-right" />
+              </span>
+            </Link>
+            <Link to="/pricing" className="btn btn-ghost ent-ghost-dark">
+              View engagement models
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
