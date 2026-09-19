@@ -20,18 +20,17 @@ import {
   homeWhatWeBuild,
   homeWhyHSubhani,
   industries,
-  processSteps,
   services,
   solutions,
-  technologies,
 } from '../data/agency'
 import { getBlogList } from '../lib/blogApi'
 import { mapBlogRowFromApi } from '../lib/blogMappers'
 import useScrollReveal from '../lib/useScrollReveal'
 
 const HOME_BLOG_COUNT = 3
-const HOME_TECH_COUNT = 6
-const HOME_AI_CAP_COUNT = 6
+const HOME_AI_CAP_COUNT = 4
+const HOME_WHY_COUNT = 3
+const HOME_FEATURED_COUNT = 3
 
 /** Hero reassurance points — short, checkable claims only. */
 const HERO_ASSURANCES = [
@@ -60,6 +59,9 @@ function mapHomeBlogPosts(items) {
     })
     .slice(0, HOME_BLOG_COUNT)
 }
+
+const featuredStudies = caseStudies.slice(0, HOME_FEATURED_COUNT)
+const whyPoints = homeWhyHSubhani.slice(0, HOME_WHY_COUNT)
 
 export default function Home() {
   const [posts, setPosts] = useState([])
@@ -93,20 +95,27 @@ export default function Home() {
     }
   }, [])
 
+  const [leadStudy, ...sideStudies] = featuredStudies
+
   return (
     <div className="home-agency" ref={pageRef}>
       {/* Hero ------------------------------------------------------------- */}
       <section className="ent-hero ent-on-dark" aria-labelledby="home-hero-heading">
         <div className="ent-hero-grid" aria-hidden="true" />
+        <div className="ent-hero-orb ent-hero-orb--a" aria-hidden="true" />
+        <div className="ent-hero-orb ent-hero-orb--b" aria-hidden="true" />
         <div className="container ent-hero-inner">
-          <div data-reveal>
+          <div className="ent-hero-copy" data-reveal>
             <p className="ent-hero-badge">
               <span className="ent-pulse" aria-hidden="true" />
               <span>{SITE_POSITIONING}</span>
             </p>
-            <h1 id="home-hero-heading">
-              Build. <em>Modernize.</em> Scale.
+            <h1 id="home-hero-heading" className="ent-hero-brand">
+              {SITE_BRAND_FULL}
             </h1>
+            <p className="ent-hero-tagline">
+              Build. <em>Modernize.</em> Scale.
+            </p>
             <p className="ent-hero-lead">
               We design, build and scale production web applications, APIs, SaaS platforms and
               AI-powered systems — engineered by a senior technical lead who stays on the project
@@ -133,7 +142,7 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="ent-stack-panel" data-reveal>
+          <div className="ent-stack-panel ent-stack-panel--live" data-reveal>
             <div className="ent-stack-panel-head">
               <h2 className="ent-stack-panel-title">Delivery Architecture</h2>
               <span className="ent-stack-dots" aria-hidden="true">
@@ -143,8 +152,12 @@ export default function Home() {
               </span>
             </div>
             <ul className="ent-stack-layers">
-              {homeArchitectureLayers.map(layer => (
-                <li className="ent-stack-layer" key={layer.tier}>
+              {homeArchitectureLayers.map((layer, index) => (
+                <li
+                  className="ent-stack-layer"
+                  key={layer.tier}
+                  style={{ '--stack-i': index }}
+                >
                   <span className="ent-stack-icon" aria-hidden="true">
                     <i className={layer.icon} />
                   </span>
@@ -189,8 +202,72 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Featured work ---------------------------------------------------- */}
+      <section className="ent-section" aria-labelledby="home-work-heading">
+        <div className="container">
+          <div className="ent-head ent-head--split" data-reveal>
+            <div>
+              <p className="ent-eyebrow">Selected work</p>
+              <h2 id="home-work-heading" className="ent-h2">
+                Systems still running the business
+              </h2>
+            </div>
+            <p className="ent-deck">
+              Production platforms in AI, commerce and operations — each one still carrying real
+              traffic, not a portfolio mock.
+            </p>
+          </div>
+
+          <div className="ent-featured" data-reveal>
+            {leadStudy && (
+              <article className="ent-featured-lead">
+                <p className="ent-work-kicker">{leadStudy.kicker}</p>
+                <h3>
+                  <Link to={`/work/${leadStudy.slug}`}>{leadStudy.title}</Link>
+                </h3>
+                <p>{leadStudy.summary}</p>
+                <ul className="ent-work-stack">
+                  {leadStudy.stack.slice(0, 5).map(tech => (
+                    <li key={tech}>{tech}</li>
+                  ))}
+                </ul>
+                <div className="ent-work-foot">
+                  <Link to={`/work/${leadStudy.slug}`} className="ent-link">
+                    Read the case study
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            )}
+
+            <div className="ent-featured-side">
+              {sideStudies.map(study => (
+                <article className="ent-featured-item" key={study.slug}>
+                  <p className="ent-work-kicker">{study.kicker}</p>
+                  <h3>
+                    <Link to={`/work/${study.slug}`}>{study.title}</Link>
+                  </h3>
+                  <p>{study.summary}</p>
+                  <Link to={`/work/${study.slug}`} className="ent-link">
+                    View project
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <p className="ent-card-foot">
+            <Link to="/work" className="ent-link">
+              Browse all case studies
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* Capabilities ----------------------------------------------------- */}
-      <section className="ent-section" aria-labelledby="home-build-heading">
+      <section className="ent-section ent-section--sunk" aria-labelledby="home-build-heading">
         <div className="container">
           <div className="ent-head ent-head--split" data-reveal>
             <div>
@@ -207,26 +284,26 @@ export default function Home() {
 
           <div className="ent-grid ent-grid--3">
             {homeWhatWeBuild.map(item => (
-              <article className="ent-card" key={item.title} data-reveal>
+              <Link className="ent-card ent-card--link" to={item.to} key={item.title} data-reveal>
                 <span className="ent-card-icon" aria-hidden="true">
                   <i className={item.icon} />
                 </span>
                 <h3>{item.title}</h3>
                 <p>{summaryForBuildItem(item)}</p>
-                <div className="ent-card-foot">
-                  <Link to={item.to} className="ent-link">
-                    Explore {item.title}
+                <span className="ent-card-foot">
+                  <span className="ent-link">
+                    Explore
                     <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-                  </Link>
-                </div>
-              </article>
+                  </span>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
       {/* Differentiators -------------------------------------------------- */}
-      <section className="ent-section ent-section--sunk" aria-labelledby="home-why-heading">
+      {/* <section className="ent-section" aria-labelledby="home-why-heading">
         <div className="container">
           <div className="ent-head ent-head--center" data-reveal>
             <p className="ent-eyebrow">Why us</p>
@@ -239,60 +316,21 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="ent-grid ent-grid--3">
-            {homeWhyHSubhani.map(item => (
-              <article className="ent-why-card" key={item.title} data-reveal>
-                <div className="ent-why-head">
-                  <i className={item.icon} aria-hidden="true" />
+          <ol className="ent-why-strip">
+            {whyPoints.map((item, index) => (
+              <li key={item.title} data-reveal>
+                <span className="ent-why-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div>
                   <h3>{item.title}</h3>
+                  <p>{item.text}</p>
                 </div>
-                <p>{item.text}</p>
-              </article>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
-      </section>
-
-      {/* Case studies ----------------------------------------------------- */}
-      <section className="ent-section" aria-labelledby="home-work-heading">
-        <div className="container">
-          <div className="ent-head ent-head--split" data-reveal>
-            <div>
-              <p className="ent-eyebrow">Selected work</p>
-              <h2 id="home-work-heading" className="ent-h2">
-                Featured case studies
-              </h2>
-            </div>
-            <p className="ent-deck">
-              Production systems in AI, commerce and operations — each one still running the
-              business it was built for.
-            </p>
-          </div>
-
-          <div className="ent-work-grid">
-            {caseStudies.map(study => (
-              <article className="ent-work-card" key={study.slug} data-reveal>
-                <p className="ent-work-kicker">{study.kicker}</p>
-                <h3>
-                  <Link to={`/work/${study.slug}`}>{study.title}</Link>
-                </h3>
-                <p>{study.summary}</p>
-                <ul className="ent-work-stack">
-                  {study.stack.map(tech => (
-                    <li key={tech}>{tech}</li>
-                  ))}
-                </ul>
-                <div className="ent-work-foot">
-                  <Link to={`/work/${study.slug}`} className="ent-link">
-                    Read the case study
-                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      </section> */}
 
       {/* AI --------------------------------------------------------------- */}
       <section className="ent-ai ent-on-dark" aria-labelledby="home-ai-heading">
@@ -327,43 +365,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Process ---------------------------------------------------------- */}
-      <section className="ent-section" aria-labelledby="home-process-heading">
-        <div className="container">
-          <div className="ent-head ent-head--split" data-reveal>
-            <div>
-              <p className="ent-eyebrow">How we work</p>
-              <h2 id="home-process-heading" className="ent-h2">
-                A delivery process you can audit
-              </h2>
-            </div>
-            <p className="ent-deck">
-              Six stages from discovery to scale, each with an output you can review before the next
-              one is funded.
-            </p>
-          </div>
-
-          <ol className="ent-process">
-            {processSteps.map(step => (
-              <li className="ent-step" key={step.n} data-reveal>
-                <span className="ent-step-n" aria-hidden="true">
-                  {step.n}
-                </span>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </li>
-            ))}
-          </ol>
-
-          <p className="ent-card-foot">
-            <Link to="/process" className="ent-link">
-              See the full process
-              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-            </Link>
-          </p>
-        </div>
-      </section>
-
       {/* Industries ------------------------------------------------------- */}
       <section className="ent-section ent-section--sunk" aria-labelledby="home-industries-heading">
         <div className="container">
@@ -374,7 +375,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="ent-grid ent-grid--3">
+          <div className="ent-industry-rail">
             {industries.map(item => (
               <Link className="ent-industry" to={item.to} key={item.slug} data-reveal>
                 <i className={item.icon} aria-hidden="true" />
@@ -385,40 +386,6 @@ export default function Home() {
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Technology ------------------------------------------------------- */}
-      <section className="ent-section" aria-labelledby="home-tech-heading">
-        <div className="container">
-          <div className="ent-head ent-head--split" data-reveal>
-            <div>
-              <p className="ent-eyebrow">Technology</p>
-              <h2 id="home-tech-heading" className="ent-h2">
-                The stack behind the work
-              </h2>
-            </div>
-            <p className="ent-deck">
-              Chosen for what a system has to do in production, not for what is currently
-              fashionable.
-            </p>
-          </div>
-
-          <ul className="ent-tech" data-reveal>
-            {technologies.slice(0, HOME_TECH_COUNT).map(tech => (
-              <li key={tech.name}>
-                <strong>{tech.name}</strong>
-                <span>{tech.text}</span>
-              </li>
-            ))}
-          </ul>
-
-          <p className="ent-card-foot">
-            <Link to="/technology" className="ent-link">
-              View the full technology stack
-              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-            </Link>
-          </p>
         </div>
       </section>
 
@@ -457,7 +424,7 @@ export default function Home() {
       </section>
 
       {/* Insights --------------------------------------------------------- */}
-      <section className="ent-section" aria-labelledby="home-blog-heading">
+      {/* <section className="ent-section" aria-labelledby="home-blog-heading">
         <div className="container">
           <div className="ent-head ent-head--split" data-reveal>
             <div>
@@ -532,18 +499,16 @@ export default function Home() {
             </Link>
           </p>
         </div>
-      </section>
+      </section> */}
 
       {/* Closing CTA ------------------------------------------------------ */}
       <section className="ent-cta ent-on-dark" aria-labelledby="home-cta-heading">
         <div className="container ent-cta-inner" data-reveal>
-          <p className="ent-eyebrow ent-eyebrow--on-dark" style={{ justifyContent: 'center' }}>
-            Start here
-          </p>
+          <p className="ent-eyebrow ent-eyebrow--on-dark ent-eyebrow--center">Start here</p>
           <h2 id="home-cta-heading" className="ent-h2">
             Ready to build?
           </h2>
-          <p className="ent-deck" style={{ marginInline: 'auto' }}>
+          <p className="ent-deck ent-deck--center">
             Tell us what you are building, modernizing or scaling. You will talk to the engineer who
             would lead the work.
           </p>
