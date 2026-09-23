@@ -152,6 +152,11 @@ body {
   background: var(--ink-800);
 }
 
+/* Tighter vertical rhythm on the home page only. */
+.home-agency {
+  --section-y: clamp(36px, 3.75vw, 62px);
+}
+
 .ent-head {
   max-width: 760px;
   margin: 0 0 clamp(40px, 4.5vw, 64px);
@@ -285,7 +290,7 @@ body {
 .ent-hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(72px, 8vw, 132px) 0 clamp(64px, 7vw, 108px);
+  padding: clamp(36px, 4vw, 66px) 0 clamp(26px, 2.8vw, 43px);
   background:
     radial-gradient(900px 520px at 78% 12%, rgba(15, 184, 159, 0.16), transparent 70%),
     radial-gradient(760px 420px at 6% 90%, rgba(27, 50, 82, 0.6), transparent 72%),
@@ -399,7 +404,7 @@ body {
 
 .ent-hero-brand {
   margin: 0;
-  font-size: clamp(2.7rem, 5.8vw, 4.5rem);
+  font-size: clamp(1.9rem, 4.06vw, 3.15rem);
   line-height: 1.02;
   font-weight: 800;
   letter-spacing: -0.045em;
@@ -523,15 +528,46 @@ body {
   gap: 6px;
 }
 
-.ent-stack-dots span {
+.ent-stack-dots button {
   width: 9px;
   height: 9px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease), transform 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
 }
 
-.ent-stack-dots span:first-child {
-  background: rgba(45, 212, 191, 0.7);
+.ent-stack-dots button:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.15);
+}
+
+.ent-stack-dots button.is-active {
+  background: rgba(45, 212, 191, 0.85);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.22);
+}
+
+.ent-stack-dots button:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 3px;
+}
+
+.ent-stack-viewport {
+  animation: ent-slide-in 0.45s var(--ease) both;
+}
+
+@keyframes ent-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .ent-stack-layers {
@@ -621,7 +657,7 @@ body {
   z-index: 1;
   background: var(--ink-800);
   border-top: 1px solid var(--line-dark);
-  padding: clamp(36px, 4vw, 56px) 0;
+  padding: clamp(14px, 1.6vw, 22px) 0;
 }
 
 .ent-metrics-grid {
@@ -660,7 +696,7 @@ body {
 }
 
 .ent-metrics-note {
-  margin: clamp(24px, 3vw, 34px) 0 0;
+  margin: clamp(10px, 1.2vw, 14px) 0 0;
   font-size: 0.76rem;
   color: rgba(190, 206, 226, 0.45);
 }
@@ -668,8 +704,8 @@ body {
 /* -------------------------------------------------------- technology band */
 
 .ent-trust {
-  padding: clamp(30px, 3.4vw, 44px) 0;
-  background: var(--paper);
+  padding: clamp(20px, 2.4vw, 32px) 0;
+  background: var(--paper-sunk);
   border-bottom: 1px solid var(--line);
 }
 
@@ -678,7 +714,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 14px clamp(24px, 4vw, 52px);
+  gap: 18px clamp(28px, 4vw, 48px);
 }
 
 .ent-trust-label {
@@ -690,28 +726,63 @@ body {
   color: var(--ink-muted);
 }
 
-/* Wordmarks, not pills — reads as a credibility row rather than tags. */
 .ent-trust-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 12px clamp(22px, 3.4vw, 40px);
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .ent-trust-row li {
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--e1);
+  color: var(--ink-soft);
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+    transform 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.ent-trust-ico {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-wash);
+  border: 1px solid rgba(15, 184, 159, 0.18);
+  color: var(--accent-deep);
+  font-size: 0.95rem;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease),
+    border-color 0.25s var(--ease);
+}
+
+.ent-trust-name {
+  font-size: 0.92rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #9aa8bd;
-  transition: color 0.25s var(--ease);
+  color: inherit;
 }
 
 .ent-trust-row li:hover {
+  transform: translateY(-2px);
+  border-color: rgba(15, 184, 159, 0.35);
+  box-shadow: var(--e2);
   color: var(--ink);
+}
+
+.ent-trust-row li:hover .ent-trust-ico {
+  background: linear-gradient(135deg, var(--accent-bright), var(--accent-deep));
+  border-color: transparent;
+  color: #fff;
 }
 
 /* ------------------------------------------------------------ card grids */
@@ -1543,7 +1614,8 @@ a.ent-card--link .ent-card-foot {
   .ent-hero-orb--a,
   .ent-hero-orb--b,
   .ent-stack-panel--live.is-visible,
-  .ent-stack-panel--live.is-visible .ent-stack-layer {
+  .ent-stack-panel--live.is-visible .ent-stack-layer,
+  .ent-stack-viewport {
     animation: none;
   }
 

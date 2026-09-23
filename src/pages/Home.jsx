@@ -15,7 +15,7 @@ import {
 import {
   aiCapabilities,
   caseStudies,
-  homeArchitectureLayers,
+  homeHeroSlides,
   homeTrustedStack,
   homeWhatWeBuild,
   homeWhyHSubhani,
@@ -31,6 +31,7 @@ const HOME_BLOG_COUNT = 3
 const HOME_AI_CAP_COUNT = 4
 const HOME_WHY_COUNT = 3
 const HOME_FEATURED_COUNT = 3
+const HERO_SLIDE_MS = 5500
 
 /** Hero reassurance points — short, checkable claims only. */
 const HERO_ASSURANCES = [
@@ -67,6 +68,8 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [blogLoading, setBlogLoading] = useState(true)
   const [blogError, setBlogError] = useState(null)
+  const [heroSlide, setHeroSlide] = useState(0)
+  const [heroPaused, setHeroPaused] = useState(false)
   const pageRef = useRef(null)
 
   useScrollReveal(pageRef, [blogLoading, posts.length])
@@ -95,6 +98,19 @@ export default function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    if (heroPaused || homeHeroSlides.length < 2) return undefined
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return undefined
+
+    const id = window.setInterval(() => {
+      setHeroSlide(i => (i + 1) % homeHeroSlides.length)
+    }, HERO_SLIDE_MS)
+
+    return () => window.clearInterval(id)
+  }, [heroPaused])
+
+  const activeSlide = homeHeroSlides[heroSlide] || homeHeroSlides[0]
   const [leadStudy, ...sideStudies] = featuredStudies
 
   return (
@@ -142,49 +158,66 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="ent-stack-panel ent-stack-panel--live" data-reveal>
+          <div
+            className="ent-stack-panel ent-stack-panel--live"
+            data-reveal
+            onMouseEnter={() => setHeroPaused(true)}
+            onMouseLeave={() => setHeroPaused(false)}
+            onFocusCapture={() => setHeroPaused(true)}
+            onBlurCapture={e => {
+              if (!e.currentTarget.contains(e.relatedTarget)) setHeroPaused(false)
+            }}
+          >
             <div className="ent-stack-panel-head">
-              <h2 className="ent-stack-panel-title">Delivery Architecture</h2>
-              <span className="ent-stack-dots" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </span>
-            </div>
-            <ul className="ent-stack-layers">
-              {homeArchitectureLayers.map((layer, index) => (
-                <li
-                  className="ent-stack-layer"
-                  key={layer.tier}
-                  style={{ '--stack-i': index }}
-                >
-                  <span className="ent-stack-icon" aria-hidden="true">
-                    <i className={layer.icon} />
-                  </span>
-                  <span className="ent-stack-body">
-                    <span className="ent-stack-tier">{layer.tier}</span>
-                    <span className="ent-stack-label">{layer.label}</span>
-                    <span className="ent-stack-detail">{layer.detail}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Proof ------------------------------------------------------------ */}
-      <section className="ent-metrics ent-on-dark" aria-label="Delivery record">
-        <div className="container">
-          <div className="ent-metrics-grid">
-            {CAREER_HIGHLIGHTS.map(stat => (
-              <div className="ent-metric" key={stat.label} data-reveal>
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
+              <h2 className="ent-stack-panel-title" id="home-stack-title">
+                {activeSlide.title}
+              </h2>
+              <div
+                className="ent-stack-dots"
+                role="tablist"
+                aria-label="Hero panel slides"
+              >
+                {homeHeroSlides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    role="tab"
+                    className={index === heroSlide ? 'is-active' : undefined}
+                    aria-selected={index === heroSlide}
+                    aria-controls="home-stack-panel"
+                    aria-label={`${slide.title} (${index + 1} of ${homeHeroSlides.length})`}
+                    onClick={() => setHeroSlide(index)}
+                  />
+                ))}
               </div>
-            ))}
+            </div>
+            <div
+              className="ent-stack-viewport"
+              id="home-stack-panel"
+              role="tabpanel"
+              aria-labelledby="home-stack-title"
+              key={activeSlide.id}
+            >
+              <ul className="ent-stack-layers">
+                {activeSlide.items.map((layer, index) => (
+                  <li
+                    className="ent-stack-layer"
+                    key={`${activeSlide.id}-${layer.tier}`}
+                    style={{ '--stack-i': index }}
+                  >
+                    <span className="ent-stack-icon" aria-hidden="true">
+                      <i className={layer.icon} />
+                    </span>
+                    <span className="ent-stack-body">
+                      <span className="ent-stack-tier">{layer.tier}</span>
+                      <span className="ent-stack-label">{layer.label}</span>
+                      <span className="ent-stack-detail">{layer.detail}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <p className="ent-metrics-note">{STATS_FOOTNOTE}</p>
         </div>
       </section>
 
@@ -196,7 +229,12 @@ export default function Home() {
           </h2>
           <ul className="ent-trust-row">
             {homeTrustedStack.map(item => (
-              <li key={item}>{item}</li>
+              <li key={item.name}>
+                <span className="ent-trust-ico" aria-hidden="true">
+                  <i className={item.icon} />
+                </span>
+                <span className="ent-trust-name">{item.name}</span>
+              </li>
             ))}
           </ul>
         </div>
@@ -390,7 +428,7 @@ export default function Home() {
       </section>
 
       {/* Founder ---------------------------------------------------------- */}
-      <section className="ent-founder" aria-labelledby="home-about-heading">
+      {/* <section className="ent-founder" aria-labelledby="home-about-heading">
         <div className="container ent-founder-grid">
           <div data-reveal>
             <p className="ent-eyebrow">About {SITE_BRAND_AGENCY}</p>
@@ -421,7 +459,7 @@ export default function Home() {
             ))}
           </ul>
         </div>
-      </section>
+      </section> */}
 
       {/* Insights --------------------------------------------------------- */}
       {/* <section className="ent-section" aria-labelledby="home-blog-heading">
@@ -501,28 +539,18 @@ export default function Home() {
         </div>
       </section> */}
 
-      {/* Closing CTA ------------------------------------------------------ */}
-      <section className="ent-cta ent-on-dark" aria-labelledby="home-cta-heading">
-        <div className="container ent-cta-inner" data-reveal>
-          <p className="ent-eyebrow ent-eyebrow--on-dark ent-eyebrow--center">Start here</p>
-          <h2 id="home-cta-heading" className="ent-h2">
-            Ready to build?
-          </h2>
-          <p className="ent-deck ent-deck--center">
-            Tell us what you are building, modernizing or scaling. You will talk to the engineer who
-            would lead the work.
-          </p>
-          <div className="ent-hero-actions">
-            <Link to="/contact" className="btn btn-teal">
-              {CTA_PRIMARY}
-              <span className="btn-ico" aria-hidden="true">
-                <i className="fa-solid fa-arrow-up-right" />
-              </span>
-            </Link>
-            <Link to="/pricing" className="btn btn-ghost ent-ghost-dark">
-              View engagement models
-            </Link>
+      {/* Proof — just above site footer ---------------------------------- */}
+      <section className="ent-metrics ent-on-dark" aria-label="Delivery record">
+        <div className="container">
+          <div className="ent-metrics-grid">
+            {CAREER_HIGHLIGHTS.map(stat => (
+              <div className="ent-metric" key={stat.label} data-reveal>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
           </div>
+          <p className="ent-metrics-note">{STATS_FOOTNOTE}</p>
         </div>
       </section>
     </div>

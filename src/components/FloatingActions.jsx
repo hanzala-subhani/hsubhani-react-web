@@ -1,14 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import ChatBot from './ChatBot'
+import { Link } from 'react-router-dom'
 import { CONTACT_PHONE_TEL, WHATSAPP_LINK } from '../config/app.config'
 
 export default function FloatingActions() {
-  const [chatOpen, setChatOpen] = useState(false)
-  const { pathname } = useLocation()
-
-  useEffect(() => setChatOpen(false), [pathname])
-
   return (
     <div className="fab-rail">
       <a
@@ -35,25 +28,6 @@ export default function FloatingActions() {
         <i className="fa-solid fa-envelope-open-text" aria-hidden="true" />
         <span className="fab-label" aria-hidden="true">Send a query</span>
       </Link>
-
-      <button
-        type="button"
-        className={`fab fab--chat${chatOpen ? ' is-active' : ''}`}
-        onClick={() => setChatOpen(o => !o)}
-        aria-label={chatOpen ? 'Close chat assistant' : 'Open chat assistant'}
-        aria-expanded={chatOpen}
-      >
-        <span className="fab-ping" aria-hidden="true" />
-        <i
-          className={`fa-solid ${chatOpen ? 'fa-xmark' : 'fa-comment-dots'}`}
-          aria-hidden="true"
-        />
-        <span className="fab-label" aria-hidden="true">
-          {chatOpen ? 'Close chat' : 'Chat with us'}
-        </span>
-      </button>
-
-      <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }

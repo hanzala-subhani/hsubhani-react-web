@@ -396,7 +396,14 @@ export const processSteps = [
   },
 ]
 
-export const homeTrustedStack = ['Laravel', 'PHP', 'Node.js', 'React', 'Python', 'AI']
+export const homeTrustedStack = [
+  { name: 'Laravel', icon: 'fa-brands fa-laravel' },
+  { name: 'PHP', icon: 'fa-brands fa-php' },
+  { name: 'Node.js', icon: 'fa-brands fa-node-js' },
+  { name: 'React', icon: 'fa-brands fa-react' },
+  { name: 'Python', icon: 'fa-brands fa-python' },
+  { name: 'AI', icon: 'fa-solid fa-brain' },
+]
 
 export const homeWhatWeBuild = [
   { title: 'Custom Software', icon: 'fa-solid fa-code', to: '/services/custom-software-development' },
@@ -440,33 +447,102 @@ export const homeWhyHSubhani = [
   },
 ]
 
-/** Architecture layers rendered in the home hero panel. Mirrors the real delivery stack. */
-export const homeArchitectureLayers = [
+/** Hero panel slides — architecture, delivery rhythm, and production ops. */
+export const homeHeroSlides = [
   {
-    tier: 'Client',
-    label: 'React SPA',
-    detail: 'Dashboards, admin consoles, customer apps',
-    icon: 'fa-brands fa-react',
+    id: 'architecture',
+    title: 'Delivery Architecture',
+    items: [
+      {
+        tier: 'Client',
+        label: 'React SPA',
+        detail: 'Dashboards, admin consoles, customer apps',
+        icon: 'fa-brands fa-react',
+      },
+      {
+        tier: 'Product API',
+        label: 'Laravel',
+        detail: 'Auth, domain logic, billing-ready backends',
+        icon: 'fa-brands fa-laravel',
+      },
+      {
+        tier: 'AI Services',
+        label: 'Python · FastAPI',
+        detail: 'LLM calls, RAG, document intelligence',
+        icon: 'fa-solid fa-microchip',
+      },
+      {
+        tier: 'Data',
+        label: 'MySQL · Redis',
+        detail: 'Durable records, cache, queues',
+        icon: 'fa-solid fa-database',
+      },
+    ],
   },
   {
-    tier: 'Product API',
-    label: 'Laravel',
-    detail: 'Auth, domain logic, billing-ready backends',
-    icon: 'fa-brands fa-laravel',
+    id: 'delivery',
+    title: 'How We Deliver',
+    items: [
+      {
+        tier: 'Discovery',
+        label: 'Scope & risks',
+        detail: 'Goals, constraints, and a buildable plan',
+        icon: 'fa-solid fa-magnifying-glass',
+      },
+      {
+        tier: 'Architecture',
+        label: 'System design',
+        detail: 'APIs, data model, and integration map',
+        icon: 'fa-solid fa-diagram-project',
+      },
+      {
+        tier: 'Build',
+        label: 'Senior-led sprints',
+        detail: 'Working software reviewed every cycle',
+        icon: 'fa-solid fa-code',
+      },
+      {
+        tier: 'Launch',
+        label: 'Handover & support',
+        detail: 'Deploy, monitor, and stay on after go-live',
+        icon: 'fa-solid fa-rocket',
+      },
+    ],
   },
   {
-    tier: 'AI Services',
-    label: 'Python · FastAPI',
-    detail: 'LLM calls, RAG, document intelligence',
-    icon: 'fa-solid fa-microchip',
-  },
-  {
-    tier: 'Data',
-    label: 'MySQL · Redis',
-    detail: 'Durable records, cache, queues',
-    icon: 'fa-solid fa-database',
+    id: 'ops',
+    title: 'Production Ops',
+    items: [
+      {
+        tier: 'Cloud',
+        label: 'AWS · VPS',
+        detail: 'Environments sized for real traffic',
+        icon: 'fa-brands fa-aws',
+      },
+      {
+        tier: 'Reliability',
+        label: 'Queues · Jobs',
+        detail: 'Background work that does not block users',
+        icon: 'fa-solid fa-gears',
+      },
+      {
+        tier: 'Security',
+        label: 'Auth · Access',
+        detail: 'JWT, roles, and API boundaries by default',
+        icon: 'fa-solid fa-shield-halved',
+      },
+      {
+        tier: 'Observability',
+        label: 'Logs · Metrics',
+        detail: 'Know what broke before customers do',
+        icon: 'fa-solid fa-chart-line',
+      },
+    ],
   },
 ]
+
+/** @deprecated Prefer homeHeroSlides[0].items — kept for any older imports. */
+export const homeArchitectureLayers = homeHeroSlides[0].items
 
 export const homeTechnology = ['Laravel', 'Node', 'React', 'Python', 'MySQL', 'Redis', 'AWS']
 
